@@ -58,10 +58,20 @@ class ScheduleJob:
         except Exception as e:
             logger.error("The system warning task failed to start")
 
-def main():
-    # asyncio.run() 用于运行整个异步应用程序的主事件循环
-    # asyncio.run(ScheduleJob.sys_warning_job())
+def server_run():
+    loop = asyncio.get_event_loop()
+    loop.create_task(ScheduleJob.sys_warning_job())
+     # 启动同步定时任务
     ScheduleJob.schedule_sys_warning()
-    input("防住主程序退出按下 Enter 键退出程序...\n")
+    threading.Thread(target=ScheduleJob.sys_warning_task_job).start()
+    threading.Thread(target=ScheduleJob.sys_warning_task_job).start()
+       # 防止主程序退出
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        logger.info("Shutting down scheduler")
+    finally:
+        loop.close()
+    
 if __name__ == "__main__":
-    main()
+    server_run()
